@@ -9,7 +9,6 @@
 require 'csv'
 require 'date'
 require 'time'
-
 #------------------------------------------------------------------------------------------------------------
 #User Input collection
 #Gets name of csv files and formats into parsed table also gets required information about event
@@ -105,6 +104,7 @@ class Room
         @food = food
         @priority = priority
         @roomType = roomType
+        @currentCapacity = 0
     end
     #Method used to check availibility of room using schedule csv
     def checkRoomAvailibilty(date, time, scheduleCsvLength, scheduleTable)
@@ -118,85 +118,130 @@ class Room
         end
         return false
     end
-    #TODO: Better way to deal with capcity issues prob fill room and return amount of students still left.
-    def setCurrentCapacity(newCapacity)
-        #if newCapacity <= self.capacity
-            @currentCapacity = newCapacity
-        #else
-            #puts "error capacity overloaded not filling room"
-        #end
+    #Function that adds students to rooms current capacity and returns amount of leftover students.
+    def addToCapacity(amountToAdd)
+        if (amountToAdd + self.currentCapacity) <= self.capacity
+            newCapacity = self.currentCapacity + amountToAdd
+            self.currentCapacity = newCapacity
+            return 0
+        else
+            difference = self.capacity - self.currentCapacity
+            self.currentCapacity += difference
+            return amountToAdd - difference
+        end
     end
     def getCurrentCapacity()
-        return @currentCapacity
+        return self.currentCapacity
     end
 end
 
 #------------------------------------------------------------------------------------------------------------
 #Room Object Creation
-#Creates a room object for each room in roomTable and assigns its varibles using roomTable data
-#
+#Creates a room object for each room in roomTable and assigns its varibles using roomTable data then returns
+#array holding all rooms
 #------------------------------------------------------------------------------------------------------------
 #While loop to create a Room obj for each row in rooms.csv
-roomsArray = []
-i = 0
-while i < roomCsvLength
-    roomsArray[i] = Room.new(roomTable[i]["Building"], roomTable[i]["Room"], roomTable[i]["Capacity"], roomTable[i]["Computers Available"], roomTable[i]["Seating Available"], roomTable[i]["Seating Type"], roomTable[i]["Food Allowed"], roomTable[i]["Priority"], roomTable[i]["Room Type"])
-    i+=1
+def CreateRooms(roomCsvLength, roomTable)
+
+    roomsArray = []
+    i = 0
+    while i < roomCsvLength
+        roomsArray[i] = Room.new(roomTable[i]["Building"], roomTable[i]["Room"], roomTable[i]["Capacity"], roomTable[i]["Computers Available"], roomTable[i]["Seating Available"], roomTable[i]["Seating Type"], roomTable[i]["Food Allowed"], roomTable[i]["Priority"], roomTable[i]["Room Type"])
+        i+=1
+    end
+    return roomsArray
 end
 
-puts roomsArray[0].checkRoomAvailibilty("2020-02-13", "02:00 AM", scheduleCsvLength, scheduleTable) #Works!!!!
+#puts roomsArray[0].checkRoomAvailibilty("2020-02-13", "02:00 AM", scheduleCsvLength, scheduleTable) #Works!!!!
 #puts roomsArray[1].roomNum
 #puts roomsArray[2].roomNum
 
 #------------------------------------------------------------------------------------------------------------
-#Seperates speciality rooms into their own arrays so certain requirements can be satisfied easily
+#Three seperate functions that seperate rooms into arrays by their specialties and returns those arrays.
 #------------------------------------------------------------------------------------------------------------
-i = 0
-j = 0
-x = 0
-y = 0
-fullCapacityRoomsArray = []
-foodRoomsArray = []
-computerRoomsArray = []
-while i < roomsArray.length
-    if roomsArray[i].capacity.to_i >= inputNumOfAttendees.to_i && (roomsArray[i].roomType == "Conference Room" || roomsArray[i].roomType == "Event Center") #Requires room for presentation to be conference of event center type
-        fullCapacityRoomsArray[j] = roomsArray[i]
-        j += 1
+def SerperateFullCapacityRooms(roomsArray, inputNumOfAttendees)
+    i = 0
+    j = 0
+    fullCapacityRoomsArray = []
+    while i < roomsArray.length
+        if roomsArray[i].capacity.to_i >= inputNumOfAttendees.to_i && (roomsArray[i].roomType == "Conference Room" || roomsArray[i].roomType == "Event Center") #Requires room for presentation to be conference of event center type
+            fullCapacityRoomsArray[j] = roomsArray[i]
+            j += 1
+        end
+        i+=1
     end
-    if roomsArray[i].food == "Yes"
-        foodRoomsArray[x] = roomsArray[i]
-        x += 1
-    end
-    if roomsArray[i].computerAvail == "Yes"
-        computerRoomsArray[y] = roomsArray[i]
-        y += 1
-    end
-    i+=1
+    return fullCapacityRoomsArray
 end
+def SerperateFoodRooms(roomsArray, inputNumOfAttendees)
+    i = 0
+    x = 0
+    foodRoomsArray = []
+
+    while i < roomsArray.length
+        if roomsArray[i].food == "Yes"
+            foodRoomsArray[x] = roomsArray[i]
+            x += 1
+        end
+        i+=1
+    end
+    return foodRoomsArray
+end
+
+def SerperateCopmuterRooms(roomsArray, inputNumOfAttendees)
+    i = 0
+    y = 0
+    computerRoomsArray = []
+    while i < roomsArray.length
+        if roomsArray[i].computerAvail == "Yes"
+            computerRoomsArray[y] = roomsArray[i]
+            y += 1
+        end
+        i+=1
+    end
+    return computerRoomsArray
+end
+
 
 #------------------------------------------------------------------------------------------------------------
 #User Selection of availible rooms
 #------------------------------------------------------------------------------------------------------------
-temp = 0
-while temp == 0
+def OpeningSessionCheck(fullCapacityRoomsArray, inputDate, inputStartTime, scheduleCsvLength, scheduleTable)
+    temp = 0
+    puts "TEST"
+    while temp == 0
 
-    puts "Will your event be holding an opening/welcome session? (Format: Y/N)"
-    YorN = gets.chomp
+        puts "Will your event be holding an opening/welcome session? (Format: Y/N)"
+        yorN = gets.chomp
 
-    if YorN == "Y"
-        puts "The following rooms are suitible for hosting an opening/welcome session."
-        j = 0
-        while j < fullCapacityRoomsArray.length()
-            if fullCapacityRoomsArray[j].checkRoomAvailibilty(inputDate, inputStartTime, scheduleCsvLength, scheduleTable)
-                puts "Building: " + fullCapacityRoomsArray[j].building + ", Room: " + fullCapacityRoomsArray[j].roomNum + ", Capacity: " + fullCapacityRoomsArray[j].capacity + ", Computers Availible: " + fullCapacityRoomsArray[j].computerAvail + ", Food Allowed: " + fullCapacityRoomsArray[j].food
+        if yorN == "Y"
+            puts "The following rooms are suitible for hosting an opening/welcome session:"
+            j = 0
+            while j < fullCapacityRoomsArray.length()
+                if fullCapacityRoomsArray[j].checkRoomAvailibilty(inputDate, inputStartTime, scheduleCsvLength, scheduleTable)
+                    puts "Building: " + fullCapacityRoomsArray[j].building + ", Room: " + fullCapacityRoomsArray[j].roomNum + ", Capacity: " + fullCapacityRoomsArray[j].capacity + ", Computers Availible: " + fullCapacityRoomsArray[j].computerAvail + ", Food Allowed: " + fullCapacityRoomsArray[j].food
+                end
+                j+=1
             end
-            j+=1
+            temp =1
+        elsif yorN == "N"
+            temp = 1
+            break
+        else
+            puts "Error incorrect format try again"
         end
-        temp =1
-    elsif YorN == "N"
-        temp = 1
-        break
-    else
-        puts "Error incorrect format try again"
     end
 end
+
+
+#------------------------------------------------------------------------------------------------------------
+#Main
+#------------------------------------------------------------------------------------------------------------
+openingSessionRequirement = false
+
+
+roomsArray = CreateRooms(roomCsvLength, roomTable)
+fullCapacityRoomsArray = SerperateFullCapacityRooms(roomsArray, inputNumOfAttendees)
+foodRoomsArray = SerperateFoodRooms(roomsArray, inputNumOfAttendees)
+computerRoomsArray = SerperateCopmuterRooms(roomsArray, inputNumOfAttendees)
+openingSessionRequirement = OpeningSessionCheck(fullCapacityRoomsArray, inputDate, inputStartTime, scheduleCsvLength, scheduleTable)
+
