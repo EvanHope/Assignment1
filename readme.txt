@@ -3,7 +3,6 @@ Evan Hope
 Assignment 1
 ----------------------------------------------------------------------------------------------
 
-Read Me
 Instructions:
 1) Enter rooms csv file name
 2) Enter schedule csv fule name
@@ -18,8 +17,7 @@ Instructions:
     "[4] List Schedule"
     "[5] Generate Schedule"
     "[6] Display Reserved Rooms"
-    "[7] Generate CSV File For Reserved Rooms"
-    "[8] Exit"
+    "[7] Exit"
 
 [1] Reprints the main menu
 [2] Prompts user to input same data that is listed at the top of this file
@@ -27,8 +25,7 @@ Instructions:
 [4] Lists schedule provided in schedule csv
 [5] Generates suggested schedule based on user input
 [6] Displays all rooms that have been Reserved
-[7] Generates a csv output file with all rooms that have been reserved and their Information
-[8] Exits the program
+[7] Exits the program
 
 Notice: you must select "[5] Generate Schedule" before options [6] or [7].
 If you do not generate before choosing these option the program will ask you
