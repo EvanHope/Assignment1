@@ -428,9 +428,21 @@ percentOfAttendeesWhoNeedComputers = 0.1
 #------------------------------------------------------------------------------------------------------------
 #------------------------------------------------------------------------------------------------------------
 #Generating Schedule (Note: This is where the code gets a little messy)
-#
+#function prompts user to enter file name and creates a txt file with that name and writes the generated
+#schedule to it.
+#the program iterates each hour filling rooms using addToCapacity function. The program loops through
+#availible rooms adding attendees to each until all requirements are met and there are no more attendees.
+#If the program can not meet a requirement or fill an important message will be printed in the txt fill.
+#(Ex: IMPORTANT: Not enough rooms for attendees to eat in during meal time!!!!)
 #------------------------------------------------------------------------------------------------------------
 def generateSchedule(roomsArray, inputNumOfAttendees, inputStartTime, inputDate, scheduleTable, inputDuration, percentOfAttendeesWhoNeedComputers, percentOfAttendeesWhoEat)
+    
+
+    puts "What would you like to name the file?: "
+    fn = gets.strip
+    f = File.open(fn, "w")    
+
+    
     x = 0
     reservedRooms = []
     fullCapacityRoomsArray = seperateFullCapacityRooms(roomsArray, inputNumOfAttendees)
@@ -441,16 +453,15 @@ def generateSchedule(roomsArray, inputNumOfAttendees, inputStartTime, inputDate,
 
     timeDec = initialTimeDecimal(inputStartTime)
     timeString = timeDecToString(timeDec)
-    puts timeString
 
 
     openingSessionRoom = fullCapacityGetter(fullCapacityRoomsArray, inputDate, inputStartTime, scheduleTable, inputNumOfAttendees)
-    openingSessionRoom.reserveRoom(inputDate, timeString, scheduleTable)
+    #openingSessionRoom.reserveRoom(inputDate, timeString, scheduleTable)
     reservedRooms[x] = openingSessionRoom
     x+=1
-    puts "Time: " + timeString
-    puts "Opening event is occuring: "
-    puts openingSessionRoom.displayInfo()
+    f.puts "Time: " + timeString
+    f.puts "Opening event is occuring: "
+    f.puts openingSessionRoom.displayInfo()
 
     i = 1
     while i <= inputDuration.to_i - 1 #while the hour is before 1 hour before the end of the event continue to loop
@@ -458,7 +469,9 @@ def generateSchedule(roomsArray, inputNumOfAttendees, inputStartTime, inputDate,
         emptyAllRooms(roomsArray)
         timeDec = timeIteratorDecimal(timeDec)
         timeString = timeDecToString(timeDec)
-        puts "Time: " + timeString
+        f.puts ""
+        f.puts ""
+        f.puts "Time: " + timeString
 
         currNumOfAttendees = inputNumOfAttendees.to_i
         computerNeedingAttendees = currNumOfAttendees * percentOfAttendeesWhoNeedComputers
@@ -467,61 +480,61 @@ def generateSchedule(roomsArray, inputNumOfAttendees, inputStartTime, inputDate,
         if i == 4 || i == 10 || i == 16 || i == 22                                                                  #Times when attendees eat
             eatingAttendees = (currNumOfAttendees * percentOfAttendeesWhoEat)                                       #Calculates how many attendees are eating
             currNumOfAttendees -= eatingAttendees                                                                   #Seperates eating attendees from total # of attendees to deal with seperately
-            puts "There will be a total of " + eatingAttendees.to_s + " attendees eating in the following rooms:"   #Tells user how many attendees are eating
+            f.puts "There will be a total of " + eatingAttendees.to_s + " attendees eating in the following rooms:"   #Tells user how many attendees are eating
             j = 0
             foodRoomsAvailible = foodRoomsCheck(foodRoomsArray, inputDate, timeString, scheduleTable)               #Returns food rooms availible at the given time and date
             while j <= foodRoomsAvailible.length() - 1 && eatingAttendees > 0                                       #loops through all availible food rooms
                 eatingAttendees = foodRoomsAvailible[j].addToCapacity(eatingAttendees)                              #Adds attendees to rooms then returns amount of remaining attendees not added to eatingAttendees
                 reservedRooms[x] = foodRoomsAvailible[j]
                 x+=1
-                foodRoomsAvailible[j].reserveRoom(inputDate, timeString, scheduleTable)
-                puts foodRoomsAvailible[j].displayInfo()
+                #foodRoomsAvailible[j].reserveRoom(inputDate, timeString, scheduleTable)
+                f.puts foodRoomsAvailible[j].displayInfo()
                 if eatingAttendees == 0
                     break
                 end
                 j+=1
             end
             if(eatingAttendees > 0)
-                puts "IMPORTANT: Not enough rooms for attendees to eat in during meal time!!!!"
+                f.puts "IMPORTANT: Not enough rooms for attendees to eat in during meal time!!!!"
                 break
             end
         end
         
         computerRoomsAvailible = computerRoomsCheck(computerRoomsArray, inputDate, timeString, scheduleTable)
-        puts "There will be a total of " + computerNeedingAttendees.to_s + " attendees using computers in the following rooms:" 
+        f.puts "There will be a total of " + computerNeedingAttendees.to_s + " attendees using computers in the following rooms:" 
         j = 0
         while j <= computerRoomsAvailible.length() - 1 && computerNeedingAttendees > 0                                   #loops through all availible food rooms
             computerNeedingAttendees = computerRoomsAvailible[j].addToCapacity(computerNeedingAttendees)                 #Adds attendees to rooms then returns amount of remaining attendees not added to eatingAttendees
             reservedRooms[x] = computerRoomsAvailible[j]
             x+=1
-            computerRoomsAvailible[j].reserveRoom(inputDate, timeString, scheduleTable)
-            puts computerRoomsAvailible[j].displayInfo()
+            #computerRoomsAvailible[j].reserveRoom(inputDate, timeString, scheduleTable)
+            f.puts computerRoomsAvailible[j].displayInfo()
             if computerNeedingAttendees == 0
                 break
             end
             j+=1
         end
         if(computerNeedingAttendees > 0)
-            puts "IMPORTANT: Not enough rooms for attendees to use computers in!!!!"
+            f.puts "IMPORTANT: Not enough rooms for attendees to use computers in!!!!"
             break
         end
 
         genericRoomsAvailible = genericRoomsCheck(genericRoomsArray, inputDate, timeString, scheduleTable)
-        puts "There will be a total of " + currNumOfAttendees.to_s + " attendees working in the following rooms:" 
+        f.puts "There will be a total of " + currNumOfAttendees.to_s + " attendees working in the following rooms:" 
         j = 0
         while j <= genericRoomsAvailible.length() - 1 && currNumOfAttendees > 0                                     #loops through all availible food rooms
             currNumOfAttendees = genericRoomsAvailible[j].addToCapacity(currNumOfAttendees)                         #Adds attendees to rooms then returns amount of remaining attendees not added to eatingAttendees
             reservedRooms[x] = genericRoomsAvailible[j]
             x+=1
-            genericRoomsAvailible.reserveRoom(inputDate, timeString, scheduleTable)
-            puts genericRoomsAvailible[j].displayInfo()
+            #genericRoomsAvailible.reserveRoom(inputDate, timeString, scheduleTable)
+            f.puts genericRoomsAvailible[j].displayInfo()
             if currNumOfAttendees == 0
                 break
             end
             j+=1
         end
         if(currNumOfAttendees > 0)
-            puts "IMPORTANT: Not enough rooms for attendees to use work in!!!!"
+            f.puts "IMPORTANT: Not enough rooms for attendees to use work in!!!!"
             break
         end
         
@@ -532,12 +545,18 @@ def generateSchedule(roomsArray, inputNumOfAttendees, inputStartTime, inputDate,
     timeDec = timeIteratorDecimal(timeDec)
     timeString = timeDecToString(timeDec)
     
+
+    f.puts ""
+    f.put ""
     closingSessionRoom = fullCapacityGetter(fullCapacityRoomsArray, inputDate, timeString, scheduleTable, inputNumOfAttendees)
     reservedRooms[x] = closingSessionRoom
-    puts "Time: " + timeString
-    puts "Closing event will occur: "
-    closingSessionRoom.reserveRoom(inputDate, timeString, scheduleTable)
-    puts closingSessionRoom.displayInfo()
+    f.puts "Time: " + timeString
+    f.puts "Closing event will occur: "
+    #closingSessionRoom.reserveRoom(inputDate, timeString, scheduleTable)
+    f.puts closingSessionRoom.displayInfo()
+
+    f.close
+
 
     return reservedRooms
 end
