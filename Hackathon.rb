@@ -1,10 +1,11 @@
 #------------------------------------------------------------------------------------------------------------
 #Evan Hope
-#2/15/21
+#csc415-02
 #Assignment 1: Application Development
 #Program which user inputs 2 csv files containing information about rooms and the times the rooms are booked.
 #The user also enters information about an event they would like to host. The program then parses the 2 csv 
 #files and compares the file and input from user and generates a schedule for the event.
+#Last Modified: 02/15/2021
 #------------------------------------------------------------------------------------------------------------
 require 'csv'
 #------------------------------------------------------------------------------------------------------------
@@ -445,18 +446,18 @@ def generateSchedule(roomsArray, inputNumOfAttendees, inputStartTime, inputDate,
     
     x = 0
     reservedRooms = []
+
+    #Creates sperates arrays for each specialty 
     fullCapacityRoomsArray = seperateFullCapacityRooms(roomsArray, inputNumOfAttendees)
     foodRoomsArray = seperateFoodRooms(roomsArray)
     computerRoomsArray = seperateComputerRooms(roomsArray)
     genericRoomsArray = seperateGenericRooms(roomsArray)
 
-
+    #Gets decimal in hours which is used to iterate
     timeDec = initialTimeDecimal(inputStartTime)
     timeString = timeDecToString(timeDec)
 
-
     openingSessionRoom = fullCapacityGetter(fullCapacityRoomsArray, inputDate, inputStartTime, scheduleTable, inputNumOfAttendees)
-    #openingSessionRoom.reserveRoom(inputDate, timeString, scheduleTable)
     reservedRooms[x] = openingSessionRoom
     x+=1
     f.puts "Time: " + timeString
@@ -464,7 +465,7 @@ def generateSchedule(roomsArray, inputNumOfAttendees, inputStartTime, inputDate,
     f.puts openingSessionRoom.displayInfo()
 
     i = 1
-    while i <= inputDuration.to_i - 1 #while the hour is before 1 hour before the end of the event continue to loop
+    while i <= inputDuration.to_i - 1 #while the hour is before 1 hour before the end of the event and 1 hour after the start continue to loop
 
         emptyAllRooms(roomsArray)
         timeDec = timeIteratorDecimal(timeDec)
@@ -487,7 +488,6 @@ def generateSchedule(roomsArray, inputNumOfAttendees, inputStartTime, inputDate,
                 eatingAttendees = foodRoomsAvailible[j].addToCapacity(eatingAttendees)                              #Adds attendees to rooms then returns amount of remaining attendees not added to eatingAttendees
                 reservedRooms[x] = foodRoomsAvailible[j]
                 x+=1
-                #foodRoomsAvailible[j].reserveRoom(inputDate, timeString, scheduleTable)
                 f.puts foodRoomsAvailible[j].displayInfo()
                 if eatingAttendees == 0
                     break
@@ -507,7 +507,6 @@ def generateSchedule(roomsArray, inputNumOfAttendees, inputStartTime, inputDate,
             computerNeedingAttendees = computerRoomsAvailible[j].addToCapacity(computerNeedingAttendees)                 #Adds attendees to rooms then returns amount of remaining attendees not added to eatingAttendees
             reservedRooms[x] = computerRoomsAvailible[j]
             x+=1
-            #computerRoomsAvailible[j].reserveRoom(inputDate, timeString, scheduleTable)
             f.puts computerRoomsAvailible[j].displayInfo()
             if computerNeedingAttendees == 0
                 break
@@ -526,7 +525,6 @@ def generateSchedule(roomsArray, inputNumOfAttendees, inputStartTime, inputDate,
             currNumOfAttendees = genericRoomsAvailible[j].addToCapacity(currNumOfAttendees)                         #Adds attendees to rooms then returns amount of remaining attendees not added to eatingAttendees
             reservedRooms[x] = genericRoomsAvailible[j]
             x+=1
-            #genericRoomsAvailible.reserveRoom(inputDate, timeString, scheduleTable)
             f.puts genericRoomsAvailible[j].displayInfo()
             if currNumOfAttendees == 0
                 break
