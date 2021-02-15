@@ -545,7 +545,7 @@ def generateSchedule(roomsArray, inputNumOfAttendees, inputStartTime, inputDate,
     
 
     f.puts ""
-    f.put ""
+    #f.put ""
     closingSessionRoom = fullCapacityGetter(fullCapacityRoomsArray, inputDate, timeString, scheduleTable, inputNumOfAttendees)
     reservedRooms[x] = closingSessionRoom
     f.puts "Time: " + timeString
