@@ -6,11 +6,11 @@ Last Modified: 02/15/2021
 
 Instructions:
 1) Enter rooms csv file name
-2) Enter schedule csv fule name
+2) Enter schedule csv file name
 3) Enter date of event
 4) Enter time of event
 5) Enter duration of event
-6) Enter number of attenedees
+6) Enter number of attendees
 7) The following menu will appear:
     "[1] Main Menu"
     "[2] Change Information"
