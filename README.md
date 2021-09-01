@@ -1,4 +1,4 @@
-# Assignment1
+# Event Scheduling Program
 Program written in ruby for CSC 415 Software Engineering.
 
 Program takes in two .csv files one containing information about rooms and one containing the availibilty of the rooms.
